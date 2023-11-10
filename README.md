@@ -1,6 +1,6 @@
 # Booking Manager
 Questions that I would ask before/after developing this project:
-- Which data is needed for JSON responses?
+- Which data is needed for JSON responses? Which data a booking needs to have?
 - Who is the client of the API? Auth is needed to access its resources?
 - It will run inside docker containers? How should we handle the logging, metrics and observability?
 
