@@ -15,7 +15,7 @@ Make sure you have the following mandatory software installed:
 - Docker
 
 To run the application, you only need to run the docker run.   
-```docker run -p 8080:8080 viniciusgferreira/booking-manager -d```
+```docker run -p 8080:8080 viniciusgferreira/booking-manager```
 
 ### From local build
 Clone this repository and build with maven   
