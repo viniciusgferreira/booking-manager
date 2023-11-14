@@ -47,6 +47,10 @@ Blocks dates can overlap each other be not overlap Bookings.
 - Create new booking   
 `Request Body:` A JSON object with the booking data.   
 `Responses:` 201 created, 409 conflict of dates.
+#### POST /api/bookings/{uid}
+- Rebook an existing booking   
+  `Request Body:` A JSON object with the new booking dates.   
+  `Responses:` 201 created, 409 conflict of dates.
 #### GET /api/bookings/{uid}
 - get existing booking data   
   `Request Path:` A uuid of the booking.   
@@ -56,6 +60,10 @@ Blocks dates can overlap each other be not overlap Bookings.
 `Request Path:` A uuid of the booking.   
 `Request Body:` A JSON object with the booking data.   
   `Responses:` 200 OK, 409 conflict of dates, 404 not found.
+#### PATCH /api/bookings/{uid}
+- Cancel an existing booking  
+  `Request Path:` A uuid of the booking.   
+  `Responses:` 200 OK, 404 not found.
 #### DELETE /api/bookings/{uid}
 - Delete an existing booking   
   `Request Path:` A uuid of the booking.   
