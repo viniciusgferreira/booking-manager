@@ -7,7 +7,6 @@ import com.hostfully.bookingmanager.dtos.PropertyResponseDTO;
 import com.hostfully.bookingmanager.dtos.builders.BookingResponseBuilder;
 import com.hostfully.bookingmanager.models.*;
 import com.hostfully.bookingmanager.models.builders.BookingBuilder;
-import com.hostfully.bookingmanager.repositories.BlockRepository;
 import com.hostfully.bookingmanager.repositories.BookingRepository;
 import com.hostfully.bookingmanager.repositories.GuestRepository;
 import com.hostfully.bookingmanager.repositories.PropertyRepository;
@@ -22,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -44,8 +42,6 @@ public class BookingServiceTest {
     PropertyRepository propertyRepository;
     @Mock
     BookingResponseBuilder bookingResponseBuilder;
-    @Mock
-    BlockRepository blockRepository;
     @Mock
     DateRangeCheckerService dateRangeCheckerService;
 
@@ -93,12 +89,10 @@ public class BookingServiceTest {
         Block blockEntity = new Block();
         blockEntity.setStartDate(LocalDate.parse("2023-10-10"));
         blockEntity.setEndDate(LocalDate.parse("2023-10-14"));
-        List<Block> listOfBlocks = List.of(blockEntity);
         when(dateRangeCheckerService.isDateRangeNotAvailable(any(), any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(true);
 
-        assertThrowsExactly(DateRangeNotAvailable.class, () -> {
-            underTest.createBooking(dto);
-        });
+        assertThrowsExactly(DateRangeNotAvailable.class, () -> underTest.createBooking(dto));
+
     }
 
     @Test

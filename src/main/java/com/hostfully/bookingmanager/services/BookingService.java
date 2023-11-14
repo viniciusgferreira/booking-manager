@@ -62,8 +62,6 @@ public class BookingService {
         Booking newBooking = new Booking();
         BeanUtils.copyProperties(existingBookingEntity, newBooking,"uid","checkInDate", "checkOutDate");
         bookingRepository.updateBookingStatus(uid, BookingStatus.REBOOKED);
-        Guest guestEntity = guestRepository.findById(existingBookingEntity.getGuest().getUid()).orElseThrow(GuestNotFoundException::new);
-        Property propertyEntity = propertyRepository.findById(existingBookingEntity.getProperty().getUid()).orElseThrow(PropertyNotFoundException::new);
         newBooking.setCheckInDate(dto.checkInDate());
         newBooking.setCheckOutDate(dto.checkOutDate());
         newBooking.setStatus(BookingStatus.CONFIRMED);
