@@ -4,6 +4,7 @@ import com.hostfully.bookingmanager.dtos.BookingResponseDTO;
 import com.hostfully.bookingmanager.dtos.GuestResponseDTO;
 import com.hostfully.bookingmanager.dtos.PropertyResponseDTO;
 import com.hostfully.bookingmanager.models.Booking;
+import com.hostfully.bookingmanager.models.BookingStatus;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ public class BookingResponseBuilder {
     private Integer guestNumber;
     private GuestResponseDTO guest;
     private PropertyResponseDTO property;
+    private BookingStatus status;
 
     public BookingResponseBuilder withId(UUID uid) {
         this.uid = uid;
@@ -45,8 +47,13 @@ public class BookingResponseBuilder {
         return this;
     }
 
+    public BookingResponseBuilder withStatus(BookingStatus status) {
+        this.status = status;
+        return this;
+    }
+
     public BookingResponseDTO build() {
-        return  new BookingResponseDTO(uid, checkInDate, checkOutDate, guestNumber, guest, property);
+        return  new BookingResponseDTO(uid, checkInDate, checkOutDate, guestNumber, guest, property, status);
     }
 
     public BookingResponseBuilder fromEntity(Booking bookingEntity) {
@@ -55,6 +62,7 @@ public class BookingResponseBuilder {
                 .withCheckOutDate(bookingEntity.getCheckOutDate())
                 .withGuestNumber(bookingEntity.getGuestNumber())
                 .withGuest(new GuestResponseDTO(bookingEntity.getGuest()))
-                .withProperty(new PropertyResponseDTO(bookingEntity.getProperty()));
+                .withProperty(new PropertyResponseDTO(bookingEntity.getProperty()))
+                .withStatus(bookingEntity.getStatus());
     }
 }

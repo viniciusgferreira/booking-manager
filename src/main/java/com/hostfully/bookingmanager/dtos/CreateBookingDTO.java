@@ -20,6 +20,7 @@ public record CreateBookingDTO(
         @NotNull(message = "guestId is mandatory")
         UUID guestId,
         @NotNull(message = "propertyId is mandatory")
-        UUID propertyId
+        UUID propertyId,
+        String status
 ) {
 }

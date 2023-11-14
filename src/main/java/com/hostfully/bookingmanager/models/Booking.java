@@ -29,8 +29,22 @@ public class Booking {
     @JoinColumn(name = "property_id")
     private Property property;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private BookingStatus status;
+
+
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
+    }
+
     public Booking() {
         this.uid = UUID.randomUUID();
+        this.setStatus(BookingStatus.CONFIRMED);
     }
 
     public UUID getUid() {

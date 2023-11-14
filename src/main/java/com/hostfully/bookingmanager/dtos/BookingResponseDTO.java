@@ -1,5 +1,7 @@
 package com.hostfully.bookingmanager.dtos;
 
+import com.hostfully.bookingmanager.models.BookingStatus;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -9,6 +11,7 @@ public record BookingResponseDTO(
         LocalDate checkOutDate,
         Integer guestNumber,
         GuestResponseDTO guest,
-        PropertyResponseDTO property
+        PropertyResponseDTO property,
+        BookingStatus status
 ) {
 }
