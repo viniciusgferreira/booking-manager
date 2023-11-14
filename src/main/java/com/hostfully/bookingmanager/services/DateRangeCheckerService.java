@@ -22,8 +22,8 @@ public class DateRangeCheckerService {
         this.blockRepository = blockRepository;
     }
 
-    public boolean isDateRangeNotAvailable(LocalDate start, LocalDate end, UUID propertyId) {
-        return isBlocked(start, end, propertyId) || isBooked(start, end, propertyId);
+    public boolean isDateRangeNotAvailable(UUID uid, LocalDate start, LocalDate end, UUID propertyId) {
+        return isBlocked(start, end, propertyId) || isBooked(uid, start, end, propertyId);
     }
 
     private boolean isBlocked(LocalDate start, LocalDate end, UUID propertyId) {
@@ -35,13 +35,11 @@ public class DateRangeCheckerService {
         return !existingBlocks.isEmpty();
     }
 
-    public boolean isBooked(LocalDate start, LocalDate end, UUID propertyId) {
-        List<Booking> existingBookings = bookingRepository.findByPropertyUidAndCheckOutDateAfterAndCheckInDateBefore(
-                propertyId,
-                start,
-                end
-        );
-
+    public boolean isBooked(UUID uid, LocalDate start, LocalDate end, UUID propertyId) {
+        List<Booking> existingBookings = bookingRepository.isBooked(start, end, propertyId);
+        if (!existingBookings.isEmpty()) {
+            existingBookings = existingBookings.stream().filter(booking -> booking.getUid() != uid).toList();
+        }
         return !existingBookings.isEmpty();
     }
 }

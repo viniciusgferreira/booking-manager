@@ -5,10 +5,7 @@ import com.hostfully.bookingmanager.dtos.CreateBookingDTO;
 import com.hostfully.bookingmanager.dtos.GuestResponseDTO;
 import com.hostfully.bookingmanager.dtos.PropertyResponseDTO;
 import com.hostfully.bookingmanager.dtos.builders.BookingResponseBuilder;
-import com.hostfully.bookingmanager.models.Block;
-import com.hostfully.bookingmanager.models.Booking;
-import com.hostfully.bookingmanager.models.Guest;
-import com.hostfully.bookingmanager.models.Property;
+import com.hostfully.bookingmanager.models.*;
 import com.hostfully.bookingmanager.models.builders.BookingBuilder;
 import com.hostfully.bookingmanager.repositories.BlockRepository;
 import com.hostfully.bookingmanager.repositories.BookingRepository;
@@ -66,16 +63,16 @@ public class BookingServiceTest {
         LocalDate checkInDate = LocalDate.parse("2023-10-12");
         LocalDate checkOutDate = LocalDate.parse("2023-10-15");
         Integer guestNumber = 2;
-        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid());
+        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid(), BookingStatus.CONFIRMED.getValue().toLowerCase());
         Booking entity = new BookingBuilder().fromDTO(dto).build();
-        BookingResponseDTO expectedResponse = new BookingResponseDTO(entity.getUid(), checkInDate, checkOutDate, guestNumber, new GuestResponseDTO(guest), new PropertyResponseDTO(property));
+        BookingResponseDTO expectedResponse = new BookingResponseDTO(entity.getUid(), checkInDate, checkOutDate, guestNumber, new GuestResponseDTO(guest), new PropertyResponseDTO(property), BookingStatus.CONFIRMED);
 
         when(guestRepository.findById(guest.getUid())).thenReturn(Optional.of(guest));
         when(propertyRepository.findById(property.getUid())).thenReturn(Optional.of(property));
         when(bookingRepository.save(any(Booking.class))).thenReturn(entity);
         when(bookingResponseBuilder.fromEntity(Mockito.any(Booking.class))).thenReturn(bookingResponseBuilder);
         when(bookingResponseBuilder.build()).thenReturn(expectedResponse);
-        when(dateRangeCheckerService.isDateRangeNotAvailable(any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(false);
+        when(dateRangeCheckerService.isDateRangeNotAvailable(any(), any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(false);
 
         BookingResponseDTO result = underTest.createBooking(dto);
 
@@ -92,12 +89,12 @@ public class BookingServiceTest {
         LocalDate checkInDate = LocalDate.parse("2023-10-12");
         LocalDate checkOutDate = LocalDate.parse("2023-10-15");
         Integer guestNumber = 2;
-        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid());
+        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid(), BookingStatus.CONFIRMED.getValue().toLowerCase());
         Block blockEntity = new Block();
         blockEntity.setStartDate(LocalDate.parse("2023-10-10"));
         blockEntity.setEndDate(LocalDate.parse("2023-10-14"));
         List<Block> listOfBlocks = List.of(blockEntity);
-        when(dateRangeCheckerService.isDateRangeNotAvailable(any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(true);
+        when(dateRangeCheckerService.isDateRangeNotAvailable(any(), any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(true);
 
         assertThrowsExactly(DateRangeNotAvailable.class, () -> {
             underTest.createBooking(dto);
@@ -109,15 +106,15 @@ public class BookingServiceTest {
         LocalDate checkInDate = LocalDate.parse("2023-10-12");
         LocalDate checkOutDate = LocalDate.parse("2023-10-15");
         Integer guestNumber = 2;
-        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid());
+        CreateBookingDTO dto = new CreateBookingDTO(checkInDate, checkOutDate, guestNumber, guest.getUid(), property.getUid(), BookingStatus.CONFIRMED.getValue());
         Booking entity = new BookingBuilder().fromDTO(dto).build();
         entity.setProperty(this.property);
         entity.setGuest(this.guest);
-        BookingResponseDTO expectedResponse = new BookingResponseDTO(entity.getUid(), checkInDate, checkOutDate, guestNumber, new GuestResponseDTO(guest), new PropertyResponseDTO(property));
+        BookingResponseDTO expectedResponse = new BookingResponseDTO(entity.getUid(), checkInDate, checkOutDate, guestNumber, new GuestResponseDTO(guest), new PropertyResponseDTO(property), BookingStatus.CONFIRMED);
 
         when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.of(entity));
         doNothing().when(bookingRepository).deleteById(any(UUID.class));
-        when(dateRangeCheckerService.isDateRangeNotAvailable(any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(false);
+        when(dateRangeCheckerService.isDateRangeNotAvailable(any(), any(LocalDate.class), any(LocalDate.class), any(UUID.class))).thenReturn(false);
         when(bookingRepository.save(any(Booking.class))).thenReturn(entity);
         when(bookingResponseBuilder.fromEntity(any(Booking.class))).thenReturn(bookingResponseBuilder);
         when(bookingResponseBuilder.build()).thenReturn(expectedResponse);

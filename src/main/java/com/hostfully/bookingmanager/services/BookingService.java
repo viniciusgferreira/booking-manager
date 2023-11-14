@@ -2,8 +2,10 @@ package com.hostfully.bookingmanager.services;
 
 import com.hostfully.bookingmanager.dtos.BookingResponseDTO;
 import com.hostfully.bookingmanager.dtos.CreateBookingDTO;
+import com.hostfully.bookingmanager.dtos.RebookDTO;
 import com.hostfully.bookingmanager.dtos.builders.BookingResponseBuilder;
 import com.hostfully.bookingmanager.models.Booking;
+import com.hostfully.bookingmanager.models.BookingStatus;
 import com.hostfully.bookingmanager.models.Guest;
 import com.hostfully.bookingmanager.models.Property;
 import com.hostfully.bookingmanager.models.builders.BookingBuilder;
@@ -43,7 +45,7 @@ public class BookingService {
 
     @Transactional
     public BookingResponseDTO createBooking(CreateBookingDTO dto) {
-        if (dateRangeCheckerService.isDateRangeNotAvailable(dto.checkInDate(), dto.checkOutDate(), dto.propertyId())) throw new DateRangeNotAvailable();
+        if (dateRangeCheckerService.isDateRangeNotAvailable(null, dto.checkInDate(), dto.checkOutDate(), dto.propertyId())) throw new DateRangeNotAvailable();
         Guest guestEntity = guestRepository.findById(dto.guestId()).orElseThrow(GuestNotFoundException::new);
         Property propertyEntity = propertyRepository.findById(dto.propertyId()).orElseThrow(PropertyNotFoundException::new);
         Booking bookingEntity = new BookingBuilder().fromDTO(dto).build();
@@ -51,6 +53,22 @@ public class BookingService {
         bookingEntity.setProperty(propertyEntity);
         Booking savedEntity = bookingRepository.save(bookingEntity);
         return bookingResponseBuilder.fromEntity(savedEntity).build();
+    }
+
+    @Transactional
+    public BookingResponseDTO rebook(UUID uid, RebookDTO dto) {
+        Booking existingBookingEntity = bookingRepository.findById(uid).orElseThrow(BookingNotFoundException::new);
+        if (dateRangeCheckerService.isDateRangeNotAvailable(uid, dto.checkInDate(), dto.checkOutDate(), existingBookingEntity.getProperty().getUid())) throw new DateRangeNotAvailable();
+        Booking newBooking = new Booking();
+        BeanUtils.copyProperties(existingBookingEntity, newBooking,"uid","checkInDate", "checkOutDate");
+        bookingRepository.updateBookingStatus(uid, BookingStatus.REBOOKED);
+        Guest guestEntity = guestRepository.findById(existingBookingEntity.getGuest().getUid()).orElseThrow(GuestNotFoundException::new);
+        Property propertyEntity = propertyRepository.findById(existingBookingEntity.getProperty().getUid()).orElseThrow(PropertyNotFoundException::new);
+        newBooking.setCheckInDate(dto.checkInDate());
+        newBooking.setCheckOutDate(dto.checkOutDate());
+        newBooking.setStatus(BookingStatus.CONFIRMED);
+        newBooking = bookingRepository.save(newBooking);
+        return bookingResponseBuilder.fromEntity(newBooking).build();
     }
 
     public BookingResponseDTO getBookingById(UUID uid) {
@@ -62,8 +80,10 @@ public class BookingService {
     public BookingResponseDTO updateBookingById(UUID uid, CreateBookingDTO dto) {
         Booking existingBookingEntity = bookingRepository.findById(uid).orElseThrow(BookingNotFoundException::new);
         bookingRepository.deleteById(uid);
-        if (dateRangeCheckerService.isDateRangeNotAvailable(dto.checkInDate(), dto.checkOutDate(), dto.propertyId())) throw new DateRangeNotAvailable();
+        if (dateRangeCheckerService.isDateRangeNotAvailable(uid, dto.checkInDate(), dto.checkOutDate(), dto.propertyId())) throw new DateRangeNotAvailable();
         BeanUtils.copyProperties(dto, existingBookingEntity);
+        BookingStatus bookingStatus = BookingStatus.fromValue(dto.status().toLowerCase());
+        existingBookingEntity.setStatus(bookingStatus);
         Booking savedAndUpdatedEntity = bookingRepository.save(existingBookingEntity);
         return bookingResponseBuilder.fromEntity(savedAndUpdatedEntity).build();
     }
@@ -72,6 +92,14 @@ public class BookingService {
     public void deleteBookingById(UUID uid) {
         if(!bookingRepository.existsById(uid)) throw new BookingNotFoundException();
         bookingRepository.deleteById(uid);
+    }
+
+    @Transactional
+    public BookingResponseDTO cancelBookingById(UUID uid) {
+        Booking existingBookingEntity = bookingRepository.findById(uid).orElseThrow(BookingNotFoundException::new);
+        existingBookingEntity.setStatus(BookingStatus.CANCELLED);
+        Booking savedAndUpdatedEntity = bookingRepository.save(existingBookingEntity);
+        return bookingResponseBuilder.fromEntity(savedAndUpdatedEntity).build();
     }
 
 

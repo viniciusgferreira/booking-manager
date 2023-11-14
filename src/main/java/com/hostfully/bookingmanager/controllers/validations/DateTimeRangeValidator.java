@@ -2,6 +2,7 @@ package com.hostfully.bookingmanager.controllers.validations;
 
 import com.hostfully.bookingmanager.dtos.CreateBlockDTO;
 import com.hostfully.bookingmanager.dtos.CreateBookingDTO;
+import com.hostfully.bookingmanager.dtos.RebookDTO;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -32,6 +33,13 @@ public class DateTimeRangeValidator implements ConstraintValidator<DateTimeRange
             this.end = ((CreateBlockDTO) dto).endDate();
             this.message = "End date must be greater than start date.";
             this.node = "endDate";
+        }
+
+        if (dto instanceof RebookDTO) {
+            this.start = ((RebookDTO) dto).checkInDate();
+            this.end = ((RebookDTO) dto).checkOutDate();
+            this.message = "CheckOut date must be greater than CheckIn date.";
+            this.node = "checkOutDate";
         }
 
         boolean isValid = this.start.isBefore(this.end);

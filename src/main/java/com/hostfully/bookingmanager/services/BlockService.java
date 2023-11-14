@@ -38,7 +38,7 @@ public class BlockService {
 
     @Transactional
     public BlockResponseDTO createBlock(CreateBlockDTO dto) {
-        if (dateRangeCheckerService.isBooked(dto.startDate(), dto.endDate(), dto.propertyId())) throw new DateRangeNotAvailable();
+        if (dateRangeCheckerService.isBooked(null,dto.startDate(), dto.endDate(), dto.propertyId())) throw new DateRangeNotAvailable();
         Property propertyEntity = propertyRepository.findById(dto.propertyId()).orElseThrow(PropertyNotFoundException::new);
         Block blockEntity = new BlockBuilder().fromDTO(dto).build();
         blockEntity.setProperty(propertyEntity);
@@ -53,8 +53,8 @@ public class BlockService {
 
     @Transactional
     public BlockResponseDTO updateBlockById(UUID uid, CreateBlockDTO dto) {
-        if (dateRangeCheckerService.isBooked(dto.startDate(), dto.endDate(), dto.propertyId())) throw new DateRangeNotAvailable();
         Block existingBlockEntity = blockRepository.findById(uid).orElseThrow(BlockNotFoundException::new);
+        if (dateRangeCheckerService.isBooked(uid, dto.startDate(), dto.endDate(), dto.propertyId())) throw new DateRangeNotAvailable();
         BeanUtils.copyProperties(dto, existingBlockEntity);
         Block savedAndUpdatedEntity = blockRepository.save(existingBlockEntity);
         return blockResponseBuilder.fromEntity(savedAndUpdatedEntity).build();
